@@ -9,13 +9,23 @@ function getCorsHeaders() {
 }
 
 async function handleRequest(
-  apiKey: string,
-  apiUrl: string,
+  args: {
+    apiKey: string;
+    apiUrl: string;
+    baseRoute?: string;
+  },
   req: NextRequest,
   method: string,
 ) {
+  const { apiKey, apiUrl, baseRoute } = args;
   try {
-    const path = req.nextUrl.pathname.replace(/^\/?api\//, "");
+    let path = req.nextUrl.pathname.replace(/^\/?api\//, "");
+    if (baseRoute) {
+      const formattedBaseRoute = baseRoute.endsWith("/")
+        ? baseRoute
+        : `${baseRoute}/`;
+      path = path.replace(formattedBaseRoute, "");
+    }
     const url = new URL(req.url);
     const searchParams = new URLSearchParams(url.search);
     searchParams.delete("_path");
@@ -34,7 +44,7 @@ async function handleRequest(
     if (["POST", "PUT", "PATCH"].includes(method)) {
       options.body = await req.text();
     }
-
+    console.log("Full URL", `${apiUrl}/${path}${queryString}`);
     const res = await fetch(`${apiUrl}/${path}${queryString}`, options);
 
     return new NextResponse(res.body, {
@@ -68,11 +78,18 @@ export function initApiPassthrough(inputs?: {
    * @default edge
    */
   runtime?: string;
+  /**
+   * The base route to use for the API passthrough. This should be used
+   * if your catchall API endpoint is nested inside another route.
+   * E.g `api/langgraph/[..._path]` instead of `api/[..._path]`
+   */
+  baseRoute?: string;
 }) {
-  const { apiKey, apiUrl, runtime } = {
+  const { apiKey, apiUrl, runtime, baseRoute } = {
     apiKey: inputs?.apiKey ?? process.env.LANGSMITH_API_KEY ?? "",
     apiUrl: inputs?.apiUrl ?? process.env.LANGGRAPH_API_URL,
     runtime: inputs?.runtime ?? "edge",
+    baseRoute: inputs?.baseRoute,
   };
 
   if (!apiUrl) {
@@ -81,13 +98,16 @@ export function initApiPassthrough(inputs?: {
     );
   }
 
-  const GET = (req: NextRequest) => handleRequest(apiKey, apiUrl, req, "GET");
-  const POST = (req: NextRequest) => handleRequest(apiKey, apiUrl, req, "POST");
-  const PUT = (req: NextRequest) => handleRequest(apiKey, apiUrl, req, "PUT");
+  const GET = (req: NextRequest) =>
+    handleRequest({ apiKey, apiUrl, baseRoute }, req, "GET");
+  const POST = (req: NextRequest) =>
+    handleRequest({ apiKey, apiUrl, baseRoute }, req, "POST");
+  const PUT = (req: NextRequest) =>
+    handleRequest({ apiKey, apiUrl, baseRoute }, req, "PUT");
   const PATCH = (req: NextRequest) =>
-    handleRequest(apiKey, apiUrl, req, "PATCH");
+    handleRequest({ apiKey, apiUrl, baseRoute }, req, "PATCH");
   const DELETE = (req: NextRequest) =>
-    handleRequest(apiKey, apiUrl, req, "DELETE");
+    handleRequest({ apiKey, apiUrl, baseRoute }, req, "DELETE");
   const OPTIONS = () => {
     return new NextResponse(null, {
       status: 204,

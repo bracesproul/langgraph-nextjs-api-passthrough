@@ -142,3 +142,25 @@ export default function TestPage() {
 ```
 
 Then, start your local web server, visit `http://localhost:3000/test`, (or swap with your local port if not `3000`), and you should see a button to create a thread. Click the button, and you should see the thread object returned from the API. If that works, it means you have the passthrough endpoint working correctly!
+
+### Nested catchall API endpoint
+
+If your LangGraph catchall passthrough route is nested inside another route (e.g `/api/some_route/[..._path]` instead of `/api/[..._path]`) you can pass the `baseRoute` option to the `initApiPassthrough` function to handle this case.
+
+Let's say you have the endpoint nested inside `/langgraph`. Your file structure would look like this:
+
+```
+/api
+  /langgraph
+    [..._path]
+      route.ts
+```
+
+You should pass `baseRoute: "langgraph"` to the `initApiPassthrough` function:
+
+```typescript
+export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
+  initApiPassthrough({
+    baseRoute: "langgraph",
+  });
+```

@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "description": "A package which exports API route passthrough functions for using LangGraph from the client with Next.js",
   "packageManager": "yarn@1.22.22",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bracesproul/langgraph-nextjs-api-passthrough"
+  },
+  "homepage": "https://github.com/bracesproul/langgraph-nextjs-api-passthrough/blob/main/README.md",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

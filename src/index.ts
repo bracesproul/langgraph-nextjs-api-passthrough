@@ -13,6 +13,7 @@ async function handleRequest(
     apiKey: string;
     apiUrl: string;
     baseRoute?: string;
+    bodyParameters?: (req: NextRequest, body: any) => any | Promise<any>;
   },
   req: NextRequest,
   method: string,
@@ -44,6 +45,13 @@ async function handleRequest(
     if (["POST", "PUT", "PATCH"].includes(method)) {
       options.body = await req.text();
     }
+
+    if (args.bodyParameters) {
+      options.body = JSON.stringify(
+        await args.bodyParameters(req, JSON.parse(options.body as string))
+      );
+    }
+
     console.log("Full URL", `${apiUrl}/${path}${queryString}`);
     const res = await fetch(`${apiUrl}/${path}${queryString}`, options);
 
@@ -84,12 +92,18 @@ export function initApiPassthrough(inputs?: {
    * E.g `api/langgraph/[..._path]` instead of `api/[..._path]`
    */
   baseRoute?: string;
+
+  /**
+   * Provide additional parameters to the API call.
+   */
+  bodyParameters?: (req: NextRequest, body: any) => any;
 }) {
-  const { apiKey, apiUrl, runtime, baseRoute } = {
+  const { apiKey, apiUrl, runtime, baseRoute, bodyParameters } = {
     apiKey: inputs?.apiKey ?? process.env.LANGSMITH_API_KEY ?? "",
     apiUrl: inputs?.apiUrl ?? process.env.LANGGRAPH_API_URL,
     runtime: inputs?.runtime ?? "edge",
     baseRoute: inputs?.baseRoute,
+    bodyParameters: inputs?.bodyParameters,
   };
 
   if (!apiUrl) {
@@ -101,11 +115,11 @@ export function initApiPassthrough(inputs?: {
   const GET = (req: NextRequest) =>
     handleRequest({ apiKey, apiUrl, baseRoute }, req, "GET");
   const POST = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute }, req, "POST");
+    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "POST");
   const PUT = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute }, req, "PUT");
+    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "PUT");
   const PATCH = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute }, req, "PATCH");
+    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "PATCH");
   const DELETE = (req: NextRequest) =>
     handleRequest({ apiKey, apiUrl, baseRoute }, req, "DELETE");
   const OPTIONS = () => {

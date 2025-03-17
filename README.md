@@ -9,7 +9,7 @@ This is a small package which exports API endpoint handlers to allow calling Lan
 - [Usage](#usage)
   - [With `Client`](#with-client)
   - [With `useStream`](#with-usestream)
-- [Nested catchall API endpoint](#nested-catchall-api-endpoint)
+- [Nested API endpoint](#nested-api-endpoint)
 - [Custom body parameters](#custom-body-parameters)
 
 ## Installation
@@ -153,7 +153,7 @@ export default function TestPage() {
 
 Then, start your local web server, visit `http://localhost:3000/test`, (or swap with your local port if not `3000`), and you should see a button to create a thread. Click the button, and you should see the thread object returned from the API. If that works, it means you have the passthrough endpoint working correctly!
 
-### Nested catchall API endpoint
+### Nested API endpoint
 
 If your LangGraph catchall passthrough route is nested inside another route (e.g `/api/some_route/[..._path]` instead of `/api/[..._path]`) you can pass the `baseRoute` option to the `initApiPassthrough` function to handle this case.
 

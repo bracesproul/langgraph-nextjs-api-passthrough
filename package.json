@@ -1,6 +1,6 @@
 {
   "name": "langgraph-nextjs-api-passthrough",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A package which exports API route passthrough functions for using LangGraph from the client with Next.js",
   "packageManager": "yarn@1.22.22",
   "repository": {

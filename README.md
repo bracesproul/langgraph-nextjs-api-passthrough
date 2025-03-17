@@ -2,6 +2,16 @@
 
 This is a small package which exports API endpoint handlers to allow calling LangGraph servers from the client, without exposing API keys, or deployment URLs. This is useful when calling a LangGraph deployment from the client-side, so you can avoid setting secrets on the client.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Setup](#setup)
+- [Usage](#usage)
+  - [With `Client`](#with-client)
+  - [With `useStream`](#with-usestream)
+- [Nested catchall API endpoint](#nested-catchall-api-endpoint)
+- [Custom body parameters](#custom-body-parameters)
+
 ## Installation
 
 ```bash
@@ -47,7 +57,7 @@ First, ensure you have a LangGraph server running, or deployed, and you've set t
 
 Next, define a simple `test` page, where we'll render a button to trigger the API call.
 
-With `Client`:
+### With `Client`:
 
 ```tsx test/page.tsx
 "use client";
@@ -93,7 +103,7 @@ export default function TestPage() {
 }
 ```
 
-With `useStream`:
+### With `useStream`:
 
 ```tsx test/page.tsx
 "use client";

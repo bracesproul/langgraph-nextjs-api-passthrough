@@ -164,3 +164,33 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
     baseRoute: "langgraph",
   });
 ```
+
+### Custom body parameters
+
+If you need to modify the body parameters before sending them to the LangGraph API, you can pass a `bodyParameters` function to the `initApiPassthrough` function. You can use this to remove, add, or modify parameters before they are sent to the API.
+
+Example, which modifies the `configurable` fields of a request to include additional credentials:
+
+```typescript
+initApiPassthrough({
+  bodyParameters: async (req, body) => {
+    if (
+      req.nextUrl.pathname.endsWith("/runs/stream") &&
+      req.method === "POST"
+    ) {
+      return {
+        ...body,
+        config: {
+          configurable: {
+            _credentials: {
+              accessToken: await getUserAccessToken(),
+            },
+          },
+        },
+      };
+    }
+
+    return body;
+  },
+});
+```

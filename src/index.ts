@@ -48,11 +48,10 @@ async function handleRequest(
 
     if (args.bodyParameters) {
       options.body = JSON.stringify(
-        await args.bodyParameters(req, JSON.parse(options.body as string))
+        await args.bodyParameters(req, JSON.parse(options.body as string)),
       );
     }
 
-    console.log("Full URL", `${apiUrl}/${path}${queryString}`);
     const res = await fetch(`${apiUrl}/${path}${queryString}`, options);
 
     return new NextResponse(res.body, {

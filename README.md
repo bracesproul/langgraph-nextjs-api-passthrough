@@ -2,6 +2,16 @@
 
 This is a small package which exports API endpoint handlers to allow calling LangGraph servers from the client, without exposing API keys, or deployment URLs. This is useful when calling a LangGraph deployment from the client-side, so you can avoid setting secrets on the client.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Setup](#setup)
+- [Usage](#usage)
+  - [With `Client`](#with-client)
+  - [With `useStream`](#with-usestream)
+- [Nested API endpoint](#nested-api-endpoint)
+- [Custom body parameters](#custom-body-parameters)
+
 ## Installation
 
 ```bash
@@ -47,7 +57,7 @@ First, ensure you have a LangGraph server running, or deployed, and you've set t
 
 Next, define a simple `test` page, where we'll render a button to trigger the API call.
 
-With `Client`:
+### With `Client`:
 
 ```tsx test/page.tsx
 "use client";
@@ -93,7 +103,7 @@ export default function TestPage() {
 }
 ```
 
-With `useStream`:
+### With `useStream`:
 
 ```tsx test/page.tsx
 "use client";
@@ -143,7 +153,7 @@ export default function TestPage() {
 
 Then, start your local web server, visit `http://localhost:3000/test`, (or swap with your local port if not `3000`), and you should see a button to create a thread. Click the button, and you should see the thread object returned from the API. If that works, it means you have the passthrough endpoint working correctly!
 
-### Nested catchall API endpoint
+### Nested API endpoint
 
 If your LangGraph catchall passthrough route is nested inside another route (e.g `/api/some_route/[..._path]` instead of `/api/[..._path]`) you can pass the `baseRoute` option to the `initApiPassthrough` function to handle this case.
 
@@ -163,4 +173,34 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
   initApiPassthrough({
     baseRoute: "langgraph",
   });
+```
+
+### Custom body parameters
+
+If you need to modify the body parameters before sending them to the LangGraph API, you can pass a `bodyParameters` function to the `initApiPassthrough` function. You can use this to remove, add, or modify parameters before they are sent to the API.
+
+Example, which modifies the `configurable` fields of a request to include additional credentials:
+
+```typescript
+initApiPassthrough({
+  bodyParameters: async (req, body) => {
+    if (
+      req.nextUrl.pathname.endsWith("/runs/stream") &&
+      req.method === "POST"
+    ) {
+      return {
+        ...body,
+        config: {
+          configurable: {
+            _credentials: {
+              accessToken: await getUserAccessToken(),
+            },
+          },
+        },
+      };
+    }
+
+    return body;
+  },
+});
 ```

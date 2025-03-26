@@ -84,7 +84,7 @@ export function initApiPassthrough(inputs?: {
    * The Next.js API runtime to use.
    * @default edge
    */
-  runtime?: string;
+  runtime?: "edge" | "nodejs" | "experimental-edge";
   /**
    * The base route to use for the API passthrough. This should be used
    * if your catchall API endpoint is nested inside another route.

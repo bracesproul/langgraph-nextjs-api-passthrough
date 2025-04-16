@@ -91,24 +91,47 @@ export function initApiPassthrough(inputs?: {
    * E.g `api/langgraph/[..._path]` instead of `api/[..._path]`
    */
   baseRoute?: string;
-
   /**
    * Provide additional parameters to the API call.
    */
   bodyParameters?: (req: NextRequest, body: any) => any;
+  /**
+   * Disable the warning log about using the recommended method of authentication.
+   */
+  disableWarningLog?: boolean;
 }) {
-  const { apiKey, apiUrl, runtime, baseRoute, bodyParameters } = {
+  const {
+    apiKey,
+    apiUrl,
+    runtime,
+    baseRoute,
+    bodyParameters,
+    disableWarningLog,
+  } = {
     apiKey: inputs?.apiKey ?? process.env.LANGSMITH_API_KEY ?? "",
     apiUrl: inputs?.apiUrl ?? process.env.LANGGRAPH_API_URL,
     runtime: inputs?.runtime ?? "edge",
     baseRoute: inputs?.baseRoute,
     bodyParameters: inputs?.bodyParameters,
+    disableWarningLog: inputs?.disableWarningLog,
   };
 
   if (!apiUrl) {
     throw new Error(
       "API URL is required. Either pass it when initializing the function, or set it under the environment variable 'LANGGRAPH_API_URL'",
     );
+  }
+
+  if (!disableWarningLog) {
+    const message = `🟠 Notice 🟠
+  
+This is no longer the recommended way of handling authentication with LangGraph servers.
+Now that both Python, and TypeScript graphs support custom authentication and routes, we recommend you implement that in your LangGraph deployment.
+Please read the documentation for more information.
+
+Python Docs: https://langchain-ai.github.io/langgraph/how-tos/auth/custom_auth/
+TypeScript Docs: https://langchain-ai.github.io/langgraphjs/how-tos/auth/custom_auth/`;
+    console.log(message);
   }
 
   const GET = (req: NextRequest) =>

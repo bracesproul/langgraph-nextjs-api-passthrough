@@ -1,5 +1,9 @@
 # LangGraph Next.js API Passthrough
 
+# 🟠 Notice 🟠
+
+This is no longer the recommended way of handling authentication with LangGraph servers. Now that both Python, and TypeScript graphs support custom authentication and routes, we recommend you implement that in your LangGraph deployment. Using custom authentication will allow for much greater security and control over your authentication flow. Please read the documentation for more information. [Python Docs](https://langchain-ai.github.io/langgraph/how-tos/auth/custom_auth/), [TypeScript Docs](https://langchain-ai.github.io/langgraphjs/how-tos/auth/custom_auth/).
+
 This is a small package which exports API endpoint handlers to allow calling LangGraph servers from the client, without exposing API keys, or deployment URLs. This is useful when calling a LangGraph deployment from the client-side, so you can avoid setting secrets on the client.
 
 ## Table of Contents

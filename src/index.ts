@@ -14,11 +14,14 @@ async function handleRequest(
     apiUrl: string;
     baseRoute?: string;
     bodyParameters?: (req: NextRequest, body: any) => any | Promise<any>;
+    headers?: (
+      req: NextRequest,
+    ) => Record<string, string> | Promise<Record<string, string>>;
   },
   req: NextRequest,
   method: string,
 ) {
-  const { apiKey, apiUrl, baseRoute } = args;
+  const { apiKey, apiUrl, baseRoute, headers } = args;
   try {
     let path = req.nextUrl.pathname.replace(/^\/?api\//, "");
     if (baseRoute) {
@@ -39,6 +42,7 @@ async function handleRequest(
       method,
       headers: {
         "x-api-key": apiKey,
+        ...(await headers?.(req)),
       },
     };
 
@@ -96,13 +100,21 @@ export function initApiPassthrough(inputs?: {
    * Provide additional parameters to the API call.
    */
   bodyParameters?: (req: NextRequest, body: any) => any;
+
+  /**
+   * Provide additional headers to the API call.
+   */
+  headers?: (
+    req: NextRequest,
+  ) => Record<string, string> | Promise<Record<string, string>>;
 }) {
-  const { apiKey, apiUrl, runtime, baseRoute, bodyParameters } = {
+  const { apiKey, apiUrl, runtime, baseRoute, bodyParameters, headers } = {
     apiKey: inputs?.apiKey ?? process.env.LANGSMITH_API_KEY ?? "",
     apiUrl: inputs?.apiUrl ?? process.env.LANGGRAPH_API_URL,
     runtime: inputs?.runtime ?? "edge",
     baseRoute: inputs?.baseRoute,
     bodyParameters: inputs?.bodyParameters,
+    headers: inputs?.headers,
   };
 
   if (!apiUrl) {
@@ -112,15 +124,27 @@ export function initApiPassthrough(inputs?: {
   }
 
   const GET = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute }, req, "GET");
+    handleRequest({ apiKey, apiUrl, baseRoute, headers }, req, "GET");
   const POST = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "POST");
+    handleRequest(
+      { apiKey, apiUrl, baseRoute, bodyParameters, headers },
+      req,
+      "POST",
+    );
   const PUT = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "PUT");
+    handleRequest(
+      { apiKey, apiUrl, baseRoute, bodyParameters, headers },
+      req,
+      "PUT",
+    );
   const PATCH = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute, bodyParameters }, req, "PATCH");
+    handleRequest(
+      { apiKey, apiUrl, baseRoute, bodyParameters, headers },
+      req,
+      "PATCH",
+    );
   const DELETE = (req: NextRequest) =>
-    handleRequest({ apiKey, apiUrl, baseRoute }, req, "DELETE");
+    handleRequest({ apiKey, apiUrl, baseRoute, headers }, req, "DELETE");
   const OPTIONS = () => {
     return new NextResponse(null, {
       status: 204,

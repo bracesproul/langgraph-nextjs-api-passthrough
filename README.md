@@ -11,6 +11,7 @@ This is a small package which exports API endpoint handlers to allow calling Lan
   - [With `useStream`](#with-usestream)
 - [Nested API endpoint](#nested-api-endpoint)
 - [Custom body parameters](#custom-body-parameters)
+- [Custom headers](#custom-headers)
 
 ## Installation
 
@@ -202,5 +203,19 @@ initApiPassthrough({
 
     return body;
   },
+});
+```
+
+### Custom headers
+
+If you need to modify the headers before sending them to the LangGraph API, you can pass a `headers` function to the `initApiPassthrough` function. You can use this to remove, add, or modify headers before they are sent to the API.
+
+Example, which adds a custom header to the request:
+
+```typescript
+initApiPassthrough({
+  headers: async (req) => ({
+    Authorization: `Bearer ${await getUserAccessToken()}`,
+  }),
 });
 ```

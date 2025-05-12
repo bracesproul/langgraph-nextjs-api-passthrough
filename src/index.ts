@@ -35,9 +35,23 @@ async function handleRequest(
       ? `?${searchParams.toString()}`
       : "";
 
+    let originalHeaders: Record<string, string | null> = {};
+    if ("entries" in req.headers && typeof req.headers.entries === "function") {
+      originalHeaders = Object.fromEntries(
+        Array.from(
+          req.headers.entries() as IterableIterator<[string, string]>,
+        ).filter(
+          ([key]) =>
+            key.toLowerCase().startsWith("x-") ||
+            key.toLowerCase() === "authorization",
+        ),
+      );
+    }
+
     const options: RequestInit = {
       method,
       headers: {
+        ...originalHeaders,
         "x-api-key": apiKey,
       },
     };

@@ -143,6 +143,8 @@ This is no longer the recommended way of handling authentication with LangGraph 
 Now that both Python, and TypeScript graphs support custom authentication and routes, we recommend you implement that in your LangGraph deployment.
 Please read the documentation for more information.
 
+You can disable this warning by passing the \`disableWarningLog\` option to the \`initApiPassthrough\` function.
+
 Python Docs: https://langchain-ai.github.io/langgraph/how-tos/auth/custom_auth/
 TypeScript Docs: https://langchain-ai.github.io/langgraphjs/how-tos/auth/custom_auth/`;
     console.log(message);

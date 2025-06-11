@@ -120,7 +120,7 @@ export function initApiPassthrough(inputs?: {
   headers?: (
     req: NextRequest,
   ) => Record<string, string> | Promise<Record<string, string>>;
-  
+
   /**
    * Disable the warning log about using the recommended method of authentication.
    */

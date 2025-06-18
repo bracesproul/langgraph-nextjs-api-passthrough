@@ -5,6 +5,7 @@ function getCorsHeaders() {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "*",
+    "Access-Control-Expose-Headers": "content-location",
   };
 }
 
@@ -38,18 +39,15 @@ async function handleRequest(
       ? `?${searchParams.toString()}`
       : "";
 
-    let originalHeaders: Record<string, string | null> = {};
-    if ("entries" in req.headers && typeof req.headers.entries === "function") {
-      originalHeaders = Object.fromEntries(
-        Array.from(
-          req.headers.entries() as IterableIterator<[string, string]>,
-        ).filter(
-          ([key]) =>
-            key.toLowerCase().startsWith("x-") ||
-            key.toLowerCase() === "authorization",
-        ),
-      );
-    }
+    const originalHeaders: Record<string, string | null> = {};
+    req.headers.forEach((value, key) => {
+      if (
+        key.toLowerCase().startsWith("x-") ||
+        key.toLowerCase() === "authorization"
+      ) {
+        originalHeaders[key] = value;
+      }
+    });
 
     const options: RequestInit = {
       method,
@@ -72,11 +70,16 @@ async function handleRequest(
 
     const res = await fetch(`${apiUrl}/${path}${queryString}`, options);
 
+    const responseHeaders: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+
     return new NextResponse(res.body, {
       status: res.status,
       statusText: res.statusText,
       headers: {
-        ...res.headers,
+        ...responseHeaders,
         ...getCorsHeaders(),
       },
     });

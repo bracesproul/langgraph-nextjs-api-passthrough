@@ -38,7 +38,7 @@ async function handleRequest(
       ? `?${searchParams.toString()}`
       : "";
 
-    let originalHeaders: Record<string, string | null> = {};
+    const originalHeaders: Record<string, string | null> = {};
     req.headers.forEach((value, key) => {
       if (
         key.toLowerCase().startsWith("x-") ||
@@ -69,7 +69,7 @@ async function handleRequest(
 
     const res = await fetch(`${apiUrl}/${path}${queryString}`, options);
 
-    let responseHeaders: Record<string, string> = {};
+    const responseHeaders: Record<string, string> = {};
     res.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });

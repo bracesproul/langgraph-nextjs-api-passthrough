@@ -63,8 +63,9 @@ async function handleRequest(
     }
 
     if (args.bodyParameters) {
+      const body = (options.body as string) || "{}";
       options.body = JSON.stringify(
-        await args.bodyParameters(req, JSON.parse(options.body as string)),
+        await args.bodyParameters(req, JSON.parse(body)),
       );
     }
 

@@ -57,6 +57,10 @@ async function handleRequest(
         ...(await headers?.(req)),
       },
     };
+    // Let fetch choose Accept-Encoding, so the reply comes back in an encoding it can decode.
+    const requestHeaders = new Headers(options.headers);
+    requestHeaders.delete("accept-encoding");
+    options.headers = requestHeaders;
 
     if (["POST", "PUT", "PATCH"].includes(method)) {
       options.body = await req.text();

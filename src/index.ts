@@ -75,6 +75,10 @@ async function handleRequest(
     res.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
+    // fetch has decoded the body, so the upstream encoding and length no longer match it.
+    delete responseHeaders["content-encoding"];
+    delete responseHeaders["content-length"];
+    delete responseHeaders["transfer-encoding"];
 
     return new NextResponse(res.body, {
       status: res.status,

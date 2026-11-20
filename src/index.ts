@@ -57,6 +57,10 @@ async function handleRequest(
         ...(await headers?.(req)),
       },
     };
+    // Let fetch choose Accept-Encoding, so the reply comes back in an encoding it can decode.
+    const requestHeaders = new Headers(options.headers);
+    requestHeaders.delete("accept-encoding");
+    options.headers = requestHeaders;
 
     if (["POST", "PUT", "PATCH"].includes(method)) {
       options.body = await req.text();
@@ -75,6 +79,10 @@ async function handleRequest(
     res.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
+    // fetch has decoded the body, so the upstream encoding and length no longer match it.
+    delete responseHeaders["content-encoding"];
+    delete responseHeaders["content-length"];
+    delete responseHeaders["transfer-encoding"];
 
     return new NextResponse(res.body, {
       status: res.status,
